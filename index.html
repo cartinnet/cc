@@ -9,225 +9,260 @@
   <link rel="icon" type="image/x-icon" href="spm.ico" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <style>
+    /* --- Core & Layout Styles --- */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #1E1E2F;
       color: #EAEAEA;
       padding: 2rem;
-      text-align: center; /* Center inline or inline-block children like h1 */
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
-    .tool-card {
-      background: #3A3D5B;
-      padding: 1.5rem;
-      border-radius: 10px;
+    h1 {
+      text-align: center;
       margin-bottom: 2rem;
-      max-width: 500px; /* Limit width on desktop */
-      margin-left: auto;   /* Center block element */
-      margin-right: auto;  /* Center block element */
-      text-align: left;   /* Reset text-align for content inside card */
-    }
-    .tool-card h2 {
-      margin-bottom: 0.5rem;
       color: #FFD700;
+      flex-shrink: 0;
     }
-    .tool-card p {
-      margin-bottom: 1rem;
+    .main-container {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      flex-grow: 1;
+      min-height: 0;
+    }
+    .panel {
+      background: #3A3D5B;
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .lhs-panel {
+      flex: 2;
+      min-width: 320px;
+    }
+    .rhs-panel {
+      flex: 3;
+      min-width: 320px;
+    }
+    
+    /* --- Input & Button Styles --- */
+    label {
+      display: block; margin-top: 1rem; margin-bottom: 0.25rem; font-weight: 600;
+    }
+    input[type="text"] {
+      width: 100%; padding: 0.75rem; margin: 0.5rem 0; border-radius: 5px;
+      border: 1px solid #2B2D42; background-color: #1E1E2F; color: #EAEAEA;
+      box-sizing: border-box; font-family: 'Poppins', sans-serif;
     }
     .tool-button {
-      background: #FFD700;
-      color: #1E1E2F;
-      border: none;
-      padding: 0.75rem 1.25rem;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      display: block; /* Make button take full width of its container if needed */
-      margin: 1rem auto 0; /* Center button within the card */
-      width: fit-content; /* Or a specific width, or remove for full width */
+      background: #FFD700; color: #1E1E2F; border: none; padding: 0.75rem 1.5rem;
+      border-radius: 5px; font-weight: bold; cursor: pointer;
     }
     .tool-button:hover {
       background-color: #E6C200;
     }
-    input[type="text"] {
-      width: calc(100% - 1.5rem); /* Adjust width to account for padding */
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      border-radius: 5px;
-      border: 1px solid #3A3D5B;
-      background-color: #1E1E2F;
-      color: #EAEAEA;
-      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    .lhs-panel .tool-button {
+        margin-top: auto;
+        width: 100%;
     }
+
+    /* --- RHS Tab Styles (DEFINITIVE GRID-BASED SOLUTION) --- */
+    .tab-nav {
+      border-bottom: 2px solid #2B2D42; margin-bottom: 1rem; display: flex; flex-shrink: 0;
+    }
+    .tab-link {
+      background: none; border: none; color: #EAEAEA; padding: 0.75rem 1.25rem;
+      cursor: pointer; font-size: 1rem; font-family: 'Poppins', sans-serif; font-weight: 600;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+    }
+    .tab-link.active {
+      color: #FFD700; border-bottom-color: #FFD700;
+    }
+    .tab-content-container {
+        position: relative;
+        flex-grow: 1;
+        min-height: 0;
+    }
+    
+    /* KEY FIX #1: Each tab is a layer that fills the container */
+    .tab-content {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        display: none; /* JS Toggles this */
+
+        /* KEY FIX #2: Each tab is a GRID, defining rows for content and the button */
+        display: grid;
+        grid-template-rows: 1fr auto; /* Row 1 for text (all space), Row 2 for button */
+        gap: 1rem;
+    }
+
     .result-area {
-      background: #2B2D42;
-      padding: 1rem;
-      border-radius: 5px;
-      margin-top: 1rem;
+      background: #2B2D42; padding: 1.5rem; border-radius: 5px;
+      word-wrap: break-word; font-size: 0.95rem; line-height: 1.7;
       white-space: pre-wrap;
-      text-align: left; /* Ensure pre-wrap content is left-aligned */
-    }
-    #toolModal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.6);
-    }
-    .modal-box {
-      background: #2B2D42;
-      margin: 5% auto;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 600px;
-      max-height: 90vh;
+      /* KEY FIX #3: The text area is a grid item that scrolls, it cannot push the button */
       overflow-y: auto;
-      position: relative;
-      text-align: left; /* Ensure modal content is left-aligned */
+      min-height: 0; /* Critical for grid children */
     }
-    .modal-box label {
-      display: block;
-      margin-top: 0.5rem;
-      margin-bottom: 0.25rem;
+    #preview-output .highlight {
+        color: #FFD700; font-weight: bold;
     }
-    .modal-box button { /* Style for buttons inside modal */
-        background: #FFD700;
-        color: #1E1E2F;
-        border: none;
-        padding: 0.75rem 1.25rem;
-        border-radius: 5px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-top: 1rem;
-        margin-right: 0.5rem; /* Add some spacing if multiple buttons */
+
+    /* KEY FIX #4: The copy button is a simple grid item. No special positioning needed. */
+    .copy-button {
+      width: fit-content;
+      align-self: flex-start;
     }
-    .modal-box button:hover {
-        background-color: #E6C200;
-    }
-    #copyPromptBtn {
-        margin-top: 0.5rem; /* Specific margin for copy button */
+
+    /* --- Responsive Adjustments --- */
+    @media (max-width: 900px) {
+      body { height: auto; }
+      .main-container { flex-direction: column; }
     }
   </style>
 </head>
-<BODY oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+
   <h1>Siva's Creative Compass Tool</h1>
 
-  <!-- Creative Compass Creator Tool -->
-  <div id="creativeCompassCreator" class="tool-card">
-    <h2>Creative Compass Creator</h2>
-    <p>Generate a detailed prompt to create a step-by-step guide for any creative task.</p>
-    <button class="tool-button" onclick="openCompassTool()">Use Our App</button>
-  </div>
+  <div class="main-container">
+    <div class="panel lhs-panel">
+      <h2>Create Your Prompt</h2>
+      <label for="actionInput">Action:</label>
+      <input type="text" id="actionInput" placeholder="e.g., create a cinematic photo">
+      <label for="platformInput">Platform:</label>
+      <input type="text" id="platformInput" placeholder="e.g., Leonardo AI">
+      <label for="outputInput">Output:</label>
+      <input type="text" id="outputInput" placeholder="e.g., YouTube video thumbnail">
+      <button class="tool-button" onclick="validateAndFinalize()">Generate & Finalize</button>
+    </div>
 
-  <!-- Modal placeholder -->
-  <div id="toolModal">
-    <div class="modal-box">
-      <span style="position:absolute; top:10px; right:15px; color:white; font-size: 1.5em; cursor:pointer;" onclick="document.getElementById('toolModal').style.display='none'">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <div id="modalBody"></div>
+    <div class="panel rhs-panel">
+      <div class="tab-nav">
+        <button id="preview-tab" class="tab-link active" onclick="openTab(event, 'preview')">Preview</button>
+        <button id="source-tab" class="tab-link" onclick="openTab(event, 'source')">Source Code</button>
+      </div>
+      
+      <div class="tab-content-container">
+        <div id="preview" class="tab-content">
+          <div id="preview-output" class="result-area"></div>
+          <button id="copyPreviewBtn" class="tool-button copy-button" onclick="copyPrompt('preview')">Copy Preview</button>
+        </div>
+        
+        <div id="source" class="tab-content">
+          <div id="source-output" class="result-area"></div>
+          <button id="copySourceBtn" class="tool-button copy-button" onclick="copyPrompt('source')">Copy Source</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Prevent right-click context menu
-    document.addEventListener('contextmenu', event => event.preventDefault());
+    const actionInput = document.getElementById('actionInput');
+    const platformInput = document.getElementById('platformInput');
+    const outputInput = document.getElementById('outputInput');
+    const previewOutput = document.getElementById('preview-output');
+    const sourceOutput = document.getElementById('source-output');
+    const copyPreviewBtn = document.getElementById('copyPreviewBtn');
+    const copySourceBtn = document.getElementById('copySourceBtn');
 
-    // Prevent common dev tools and view source shortcuts
-    document.addEventListener('keydown', function(event) {
-      // F12
-      if (event.key === 'F12') {
-        event.preventDefault();
-      }
-      // Ctrl+Shift+I
-      if (event.ctrlKey && event.shiftKey && event.key === 'I') {
-        event.preventDefault();
-      }
-      // Ctrl+Shift+J
-      if (event.ctrlKey && event.shiftKey && event.key === 'J') {
-        event.preventDefault();
-      }
-      // Ctrl+U
-      if (event.ctrlKey && event.key === 'u') {
-        event.preventDefault();
-      }
-      // Ctrl+S (often "Save Page As", can reveal source)
-      if (event.ctrlKey && event.key === 's') {
-        event.preventDefault();
-      }
-       // Ctrl+Shift+C (Inspect element)
-      if (event.ctrlKey && event.shiftKey && event.key === 'C') {
-        event.preventDefault();
-      }
-    });
+    function updateLivePreview() {
+        const action = actionInput.value.trim();
+        const platform = platformInput.value.trim();
+        const output = outputInput.value.trim();
 
+        const allFieldsFilled = action && platform && output;
+        copyPreviewBtn.style.display = allFieldsFilled ? 'block' : 'none';
+        copySourceBtn.style.display = 'block';
 
-    function openCompassTool() {
-      const modalTitle = document.getElementById('modalTitle');
-      const modalBody = document.getElementById('modalBody');
-      const modal = document.getElementById('toolModal');
-      modalTitle.textContent = 'Creative Compass Prompt Generator';
-      modalBody.innerHTML = `
-        <div>
-          <label for="actionInput">Action:</label>
-          <input type="text" id="actionInput" placeholder="e.g., use this prompt in Leonardo">
+        const actionDisplay = action || '[Action]';
+        const platformDisplay = platform || '[Platform]';
+        const outputDisplay = output || '[Output]';
 
-          <label for="platformInput">Platform:</label>
-          <input type="text" id="platformInput" placeholder="e.g., Leonardo">
-          
-          <label for="outputInput">Output:</label>
-          <input type="text" id="outputInput" placeholder="e.g., YouTube video thumbnail image">
-
-          <button onclick="generatePrompt()">Generate Prompt</button>
-
-          <div id="generatedPromptContainer" class="result-area" style="display:none;"></div>
-          <button id="copyPromptBtn" style="display:none;" onclick="copyPrompt()">Copy</button>
-        </div>
-      `;
-      modal.style.display = 'block';
-    }
-
-    function generatePrompt() {
-      const action = document.getElementById('actionInput').value.trim();
-      const platform = document.getElementById('platformInput').value.trim();
-      const output = document.getElementById('outputInput').value.trim();
-      
-      if (!action || !platform || !output) {
-        alert("Please fill in all fields: Action, Platform, and Output.");
-        return;
-      }
-      
-      const prompt = `Could you please give me a step-by-step walkthrough of how to ${action}?
+        const sourceText = `Could you please give me a step-by-step walkthrough of how to ${actionDisplay}?
 
 This guide must serve as my creative compass. It should help me 'execute the what' with consistency and strategy, without losing focus or voice.
 
-Please include every minute detail of the settings in ${platform} required to create the best, professional, and eye-catching ${output} that meets international marketing standards.
+Please include every minute detail of the settings in ${platformDisplay} required to create the best, professional, and eye-catching ${outputDisplay} that meets international marketing standards.
 
 Write your answer in modern, elegant Bengali (India) that is easy to understand, yet maintains an international marketing standard — as if you're a close friend and a trusted authority on the topic, speaking directly to the reader in a one-on-one, face-to-face tone.`;
 
-      const container = document.getElementById('generatedPromptContainer');
-      const copyBtn = document.getElementById('copyPromptBtn');
-      container.textContent = prompt;
-      container.style.display = 'block';
-      copyBtn.style.display = 'inline-block';
+        const previewHTML = sourceText
+            .replace(new RegExp(actionDisplay.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), `<span class="highlight">${actionDisplay}</span>`)
+            .replace(new RegExp(platformDisplay.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), `<span class="highlight">${platformDisplay}</span>`)
+            .replace(new RegExp(outputDisplay.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), `<span class="highlight">${outputDisplay}</span>`);
+
+        previewOutput.innerHTML = previewHTML;
+        sourceOutput.textContent = sourceText;
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        openTab(null, 'preview'); // Set initial tab
+        updateLivePreview();
+    });
+    actionInput.addEventListener('input', updateLivePreview);
+    platformInput.addEventListener('input', updateLivePreview);
+    outputInput.addEventListener('input', updateLivePreview);
+    
+    function validateAndFinalize() {
+        if (!actionInput.value.trim() || !platformInput.value.trim() || !outputInput.value.trim()) {
+            alert("Please fill in all fields to finalize the prompt.");
+            return;
+        }
+        openTab(null, 'source');
+        alert("Prompt finalized! It's ready in the 'Source Code' tab to be copied.");
     }
 
-    function copyPrompt() {
-      const container = document.getElementById('generatedPromptContainer');
-      const text = container.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const copyBtn = document.getElementById('copyPromptBtn');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy';
-        }, 2000);
-      }).catch(err => {
-        console.error('Failed to copy text: ', err);
-        alert('Failed to copy text. Please try again or copy manually.');
-      });
+    function openTab(evt, tabName) {
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('source').style.display = 'none';
+        document.getElementById('preview-tab').classList.remove('active');
+        document.getElementById('source-tab').classList.remove('active');
+        
+        document.getElementById(tabName).style.display = 'grid'; // ALWAYS use grid
+        const currentTabButton = evt ? evt.currentTarget : document.getElementById(tabName + '-tab');
+        currentTabButton.classList.add('active');
     }
+
+    function copyPrompt(type) {
+        let textToCopy;
+        let buttonToUpdate;
+        if (type === 'preview') {
+            textToCopy = previewOutput.innerText; // Use innerText to get text content from HTML
+            buttonToUpdate = copyPreviewBtn;
+        } else {
+            textToCopy = sourceOutput.textContent;
+            buttonToUpdate = copySourceBtn;
+        }
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalText = buttonToUpdate.textContent;
+            buttonToUpdate.textContent = 'Copied!';
+            setTimeout(() => { buttonToUpdate.textContent = originalText; }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy text. Please try again or copy manually.');
+        });
+    }
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.key === 's')) {
+            e.preventDefault();
+        }
+    });
   </script>
+
 </body>
 </html>
