@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <title>Creative Compass Tool - Siva Prasad Mukherjee</title>
+  <link rel="icon" type="image/x-icon" href="spm.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #1E1E2F;
+      color: #EAEAEA;
+      padding: 2rem;
+      text-align: center; /* Center inline or inline-block children like h1 */
+    }
+    .tool-card {
+      background: #3A3D5B;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      max-width: 500px; /* Limit width on desktop */
+      margin-left: auto;   /* Center block element */
+      margin-right: auto;  /* Center block element */
+      text-align: left;   /* Reset text-align for content inside card */
+    }
+    .tool-card h2 {
+      margin-bottom: 0.5rem;
+      color: #FFD700;
+    }
+    .tool-card p {
+      margin-bottom: 1rem;
+    }
+    .tool-button {
+      background: #FFD700;
+      color: #1E1E2F;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      display: block; /* Make button take full width of its container if needed */
+      margin: 1rem auto 0; /* Center button within the card */
+      width: fit-content; /* Or a specific width, or remove for full width */
+    }
+    .tool-button:hover {
+      background-color: #E6C200;
+    }
+    input[type="text"] {
+      width: calc(100% - 1.5rem); /* Adjust width to account for padding */
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+      border: 1px solid #3A3D5B;
+      background-color: #1E1E2F;
+      color: #EAEAEA;
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    }
+    .result-area {
+      background: #2B2D42;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-top: 1rem;
+      white-space: pre-wrap;
+      text-align: left; /* Ensure pre-wrap content is left-aligned */
+    }
+    #toolModal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .modal-box {
+      background: #2B2D42;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      text-align: left; /* Ensure modal content is left-aligned */
+    }
+    .modal-box label {
+      display: block;
+      margin-top: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .modal-box button { /* Style for buttons inside modal */
+        background: #FFD700;
+        color: #1E1E2F;
+        border: none;
+        padding: 0.75rem 1.25rem;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 1rem;
+        margin-right: 0.5rem; /* Add some spacing if multiple buttons */
+    }
+    .modal-box button:hover {
+        background-color: #E6C200;
+    }
+    #copyPromptBtn {
+        margin-top: 0.5rem; /* Specific margin for copy button */
+    }
+  </style>
+</head>
+<BODY oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+  <h1>Siva's Creative Compass Tool</h1>
+
+  <!-- Creative Compass Creator Tool -->
+  <div id="creativeCompassCreator" class="tool-card">
+    <h2>Creative Compass Creator</h2>
+    <p>Generate a detailed prompt to create a step-by-step guide for any creative task.</p>
+    <button class="tool-button" onclick="openCompassTool()">Use Our App</button>
+  </div>
+
+  <!-- Modal placeholder -->
+  <div id="toolModal">
+    <div class="modal-box">
+      <span style="position:absolute; top:10px; right:15px; color:white; font-size: 1.5em; cursor:pointer;" onclick="document.getElementById('toolModal').style.display='none'">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // Prevent right-click context menu
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // Prevent common dev tools and view source shortcuts
+    document.addEventListener('keydown', function(event) {
+      // F12
+      if (event.key === 'F12') {
+        event.preventDefault();
+      }
+      // Ctrl+Shift+I
+      if (event.ctrlKey && event.shiftKey && event.key === 'I') {
+        event.preventDefault();
+      }
+      // Ctrl+Shift+J
+      if (event.ctrlKey && event.shiftKey && event.key === 'J') {
+        event.preventDefault();
+      }
+      // Ctrl+U
+      if (event.ctrlKey && event.key === 'u') {
+        event.preventDefault();
+      }
+      // Ctrl+S (often "Save Page As", can reveal source)
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+      }
+       // Ctrl+Shift+C (Inspect element)
+      if (event.ctrlKey && event.shiftKey && event.key === 'C') {
+        event.preventDefault();
+      }
+    });
+
+
+    function openCompassTool() {
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+      const modal = document.getElementById('toolModal');
+      modalTitle.textContent = 'Creative Compass Prompt Generator';
+      modalBody.innerHTML = `
+        <div>
+          <label for="actionInput">Action:</label>
+          <input type="text" id="actionInput" placeholder="e.g., use this prompt in Leonardo">
+
+          <label for="platformInput">Platform:</label>
+          <input type="text" id="platformInput" placeholder="e.g., Leonardo">
+          
+          <label for="outputInput">Output:</label>
+          <input type="text" id="outputInput" placeholder="e.g., YouTube video thumbnail image">
+
+          <button onclick="generatePrompt()">Generate Prompt</button>
+
+          <div id="generatedPromptContainer" class="result-area" style="display:none;"></div>
+          <button id="copyPromptBtn" style="display:none;" onclick="copyPrompt()">Copy</button>
+        </div>
+      `;
+      modal.style.display = 'block';
+    }
+
+    function generatePrompt() {
+      const action = document.getElementById('actionInput').value.trim();
+      const platform = document.getElementById('platformInput').value.trim();
+      const output = document.getElementById('outputInput').value.trim();
+      
+      if (!action || !platform || !output) {
+        alert("Please fill in all fields: Action, Platform, and Output.");
+        return;
+      }
+      
+      const prompt = `Could you please give me a step-by-step walkthrough of how to ${action}?
+
+This guide must serve as my creative compass. It should help me 'execute the what' with consistency and strategy, without losing focus or voice.
+
+Please include every minute detail of the settings in ${platform} required to create the best, professional, and eye-catching ${output} that meets international marketing standards.
+
+Write your answer in modern, elegant Bengali (India) that is easy to understand, yet maintains an international marketing standard — as if you're a close friend and a trusted authority on the topic, speaking directly to the reader in a one-on-one, face-to-face tone.`;
+
+      const container = document.getElementById('generatedPromptContainer');
+      const copyBtn = document.getElementById('copyPromptBtn');
+      container.textContent = prompt;
+      container.style.display = 'block';
+      copyBtn.style.display = 'inline-block';
+    }
+
+    function copyPrompt() {
+      const container = document.getElementById('generatedPromptContainer');
+      const text = container.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const copyBtn = document.getElementById('copyPromptBtn');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy text. Please try again or copy manually.');
+      });
+    }
+  </script>
+</body>
+</html>
